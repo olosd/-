@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+</head>
+<body>
+	<style>
+	        .top{
+	            /* 设置宽度高度背景颜色 */
+	            height: 50px;
+	            width:100%;
+	            background:rgb(189, 181, 181);
+	            position: fixed; /*固定在顶部*/
+	            top: 0;/*离顶部的距离为0*/
+	        }
+	        .top ul{
+	            /* 清除ul标签的默认样式 */
+	            width: 80%;
+	            list-style-type: none;
+	            margin: 0;
+	            padding: 0;
+	            overflow: hidden;
+
+	        }
+	        .top li {
+	            float:left; /* 使li内容横向浮动，即横向排列  */
+	            margin-right:50px;  /* 两个li之间的距离*/
+	        }
+
+	        .top li a{
+	           /* 设置链接内容显示的格式*/
+	            display: block; /* 把链接显示为块元素可使整个链接区域可点击 */
+	            color:white;
+	            text-align: center;
+	            padding: 14px 16px;
+	            text-decoration: none; /* 去除下划线 */
+	        }
+	        .top li a:hover{
+	            /* 鼠标选中时背景变为黑色 */
+	            background-color: #111;
+	        }
+	        .top ul li ul{
+	            /* 设置二级菜单 */
+	            width: auto;
+	            background:rgb(189, 181, 181);
+	            position: absolute;
+	            display: none; /* 默认隐藏二级菜单的内容 */
+
+	        }
+	        .top ul li ul li{
+	            /* 二级菜单li内容的显示 */
+	            margin-right:0;
+	            float:none;
+	            text-align: center;
+	        }
+	        .top ul li:hover ul{
+	            /* 鼠标选中二级菜单内容时 */
+	            display: block;
+	        }
+
+			#kk{
+				width: 1150px;
+				height: 90px;
+				background-color: #00ff00;
+				margin-top: 70px;
+				margin-left: 20px;
+			}
+			#kk h3,p{
+				margin-left: 20px;
+				margin-top: 10px;
+			}
+			#kk p{
+				width: 90%;
+				height: 40px;
+				overflow:hidden ;
+				color: red;
+			}
+			#ckwz{
+                margin-top: 90px;
+                margin-left: 100px;
+				display: none;
+			}
+
+
+	</style>
+
+<div>
+
+    <div id="app">
+ <div class="top">
+
+                    <ul>
+                    <li><a href="tj.html">添加</a></li>
+                    <li><a href="#">一级菜单</a></li>
+                    <li><a href="#">一集菜单</a></li>
+                    <li><a href="#"><b>一级菜单</b></a></li>
+                    <li><a href="#">一级菜单</a></li>
+                    <li>
+                        <a href="#">一级菜单</a>
+                        <ul>
+                            <li><a href="#">二级菜单</a></li>
+                            <li><a href="#">二级菜单</a></li>
+                        </ul>
+                    </li>
+                      </ul>
+
+            </div>
+
+<!--		列表-->
+      <div v-for="(da,index) in datalist.data" :key="da.index"  :style="BkLbcss"  >
+			<div id="kk" @click="getBkId(da.bt,da.zt,da.bkid)">
+				<h3>{{da.bt}}</h3>
+				<p>{{da.zt}}</p>
+            </div>
+          <input type="button" @click="delBk(da.bkid)" VALUE="删除"><br>
+
+          <input type="button" @click="unpBk(da.bkid)" VALUE="修改"><br>
+
+      </div>
+
+<!--        查看文章-->
+        <div id="ckwz" :style="BkDt">
+            <div>
+            	<h1>{{Bkidvue.bt}}</h1>
+				<p>{{Bkidvue.zt}}</p>
+            </div>
+            评论:
+            <br>
+            <div id="pl" v-for="(pl,index) in datapl">
+                名字：{{pl.p_name}}
+                <p>{{pl.p_zt}}</p>
+            </div>
+
+            <form method="post" action="/pl/add">
+                name：<input type="text"  name="p_name"/><br />
+                评论：<input type="text"  name="p_zt"/><br />
+                <input type="submit">
+            </form>
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+
+<script>
+    var vue = new Vue({
+        el: '#app',
+        data:{
+            datapl: [],
+            datalist:[],
+            BkLbcss:{
+                display:"true"
+            },
+			BkDt:{
+				display:"true"
+			},
+			Bkidvue: {}
+        },
+        created() {
+            //查询全部数据
+            this.getAll()
+
+        },
+        methods : {
+            getplAll(bkid){
+                console.log(bkid)
+                axios.get('/pl/'+bkid).then((res)=> {
+                    this.datapl = res.data
+                    console.log(this.datapl)
+                })
+            },
+
+            getAll(){
+                //发送异步请求
+                axios.get('/dz').then((res)=> {
+                    this.datalist = res.data
+                })
+            },
+			getBkId(bt,zt,bkid){
+                // this.Bkidvue = bkid;
+                this.Bkidvue.bt = bt;
+                this.Bkidvue.zt = zt;
+                this.BkLbcss.display = "none";
+				this.BkDt.display = "block"
+
+                this.getplAll(bkid)
+			},
+            delBk(id){
+                axios.get('/dz/del/'+id).then((res)=> {
+                    console.log(res)
+                })
+                alert("删除成功")
+                this.getAll()
+
+            },
+            unpBk(id){
+                console.log(id)
+            }
+
+        }
+    })
+
+</script>
+</html>
